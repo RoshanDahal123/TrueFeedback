@@ -1,7 +1,6 @@
 import {
   Html,
   Head,
-  Title,
   Preview,
   Heading,
   Row,
@@ -17,12 +16,12 @@ const VerificationEmail = ({ username, otp }: VerificationEmailProps) => {
   return (
     <Html lang="en" dir="ltr">
       <Head />
-      <Title>Verification Code</Title>
+
       <Preview>Verification Code</Preview>
       <Section style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
         <Row>
           <Heading style={{ textAlign: "center" }}>
-            Here&apos:s your verification code, {otp}
+            Here&apos;s your verification code, {otp}
           </Heading>
         </Row>
         <Row>

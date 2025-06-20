@@ -8,14 +8,19 @@ export async function POST(request: Request) {
   await dbConnect();
   try {
     const body = await request.json();
-    console.log(body);
+
     const validation = signUpSchema.safeParse(body);
-    console.log(validation);
+
     if (!validation.success) {
+      // Extract error messages
+      const errors = validation.error.errors.map((err) => ({
+        field: err.path[0],
+        message: err.message,
+      }));
       return Response.json(
         {
           success: false,
-          message: "Invalid input data",
+          errors,
         },
         {
           status: 400,

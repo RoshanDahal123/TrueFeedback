@@ -67,3 +67,57 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export async function GET(request: Request) {
+  const session = await getServerSession(authOptions);
+
+  const user: User = session?.user as User;
+
+  if (!session || !session.user) {
+    return Response.json(
+      {
+        status: false,
+        message: "Not Authenticated",
+      },
+      {
+        status: 401,
+      }
+    );
+  }
+  const userId = user._id;
+  const foundUser = await UserModel.findById(userId);
+
+  try {
+    if (!foundUser) {
+      return Response.json(
+        {
+          success: false,
+          message: "User with that id not found",
+        },
+        {
+          status: 404,
+        }
+      );
+    }
+    return Response.json(
+      {
+        success: true,
+        isAcceptingMessage: foundUser.isAcceptingMessage,
+      },
+      {
+        status: 200,
+      }
+    );
+  } catch (error) {
+    console.log("Failed to get the user status to accept messages", error);
+    return Response.json(
+      {
+        success: false,
+        message: "Error is getting message acceptance",
+      },
+      {
+        status: 500,
+      }
+    );
+  }
+}

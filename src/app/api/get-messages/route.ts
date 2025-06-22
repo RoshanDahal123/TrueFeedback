@@ -24,7 +24,7 @@ export async function GET(request: Request) {
   const userId = new mongoose.Types.ObjectId(user._id);
   try {
     const user = await UserModel.aggregate([
-      { $match: { id: userId } },
+      { $match: { _id: userId } },
       { $unwind: "$messages" },
       {
         $sort: { "messages.createdAt": -1 },
@@ -61,7 +61,7 @@ export async function GET(request: Request) {
         message: `Error has occured,${error}`,
       },
       {
-        status: 401,
+        status: 500,
       }
     );
   }

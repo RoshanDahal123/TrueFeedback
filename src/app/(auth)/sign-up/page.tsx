@@ -25,12 +25,12 @@ import { Loader2 } from "lucide-react";
 
 const Page = () => {
   const [username, setUsername] = useState("");
-  const [usernameMessage, setUsernameMessage] = useState("");
+  const [usernameMessage, setUsernameMessage] = useState("test");
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const debounced = useDebounceCallback(setUsername, 300);
   const router = useRouter();
-  const toast = useToast();
+  const { toast } = useToast();
 
   // zod implementation
   const form = useForm<z.infer<typeof signUpSchema>>({
@@ -41,27 +41,32 @@ const Page = () => {
       password: "",
     },
   });
+
   useEffect(() => {
     const checkUsernameUnique = async () => {
-      if (username) {
-        setIsCheckingUsername(true);
-        setUsernameMessage("");
-        try {
-          const response = await axios.get(
-            `/api/check-username-unique?username=${username}`
-          );
-          let message = response.data.message;
-          setUsernameMessage(message);
-        } catch (error) {
-          const axiosError = error as AxiosError<ApiResponse>;
-          setUsernameMessage(
-            axiosError.response?.data.message ?? "Error checking username"
-          );
-        } finally {
-          setIsCheckingUsername(false);
-        }
+      if (!username) {
+        setUsernameMessage(""); // ✅ Clear message if input is empty
+        return;
+      }
+
+      setIsCheckingUsername(true);
+      setUsernameMessage("");
+      try {
+        const response = await axios.get(
+          `/api/check-username-unique?username=${username}`
+        );
+        const message = response.data.message;
+        setUsernameMessage(message);
+      } catch (error) {
+        const axiosError = error as AxiosError<ApiResponse>;
+        setUsernameMessage(
+          axiosError.response?.data.message ?? "Error checking username"
+        );
+      } finally {
+        setIsCheckingUsername(false);
       }
     };
+
     checkUsernameUnique();
   }, [username]);
 
@@ -73,7 +78,7 @@ const Page = () => {
         title: "Success",
         description: response.data.message,
       });
-      router.replace(`/verify/${data.username}`);
+      router.replace(`/verify/${username}`);
       setIsSubmitting(false);
     } catch (error) {
       console.log("Error in signup of user", error);
@@ -118,7 +123,9 @@ const Page = () => {
                     {isCheckingUsername && <Loader2 className="animate-spin" />}
                     <p
                       className={`text-sm ${usernameMessage === "Username is unique" ? "text-green-500" : "text-red-500"}`}
-                    ></p>
+                    >
+                      {usernameMessage}
+                    </p>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -160,7 +167,7 @@ const Page = () => {
                 {isSubmitting ? (
                   <>
                     {" "}
-                    <Loader2 className=" mr2- h-4 w-4 animate-spin" />
+                    <Loader2 className=" mr-2 h-4 w-4 animate-spin" />
                     Please Wait
                   </>
                 ) : (

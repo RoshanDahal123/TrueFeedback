@@ -1,12 +1,16 @@
 "use client";
 
+import MessageCard from "@/components/MessageCard";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { Message } from "@/model/User";
 import { AcceptMessageSchema } from "@/schemas/acceptMessageSchema";
 import { ApiResponse } from "@/types/ApiResponse";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Switch } from "@/components/ui/switch";
 import axios, { AxiosError } from "axios";
+import { Loader2, RefreshCcw } from "lucide-react";
 import { User } from "next-auth";
 import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useState } from "react";
@@ -14,7 +18,7 @@ import { useForm } from "react-hook-form";
 
 const page = () => {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [loading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSwitchLoading, setIsSwitchLoading] = useState<boolean>(false);
 
   const { toast } = useToast();
@@ -67,7 +71,7 @@ const page = () => {
       } catch (error) {
         const axiosError = error as AxiosError;
         toast({
-          title: "Error II",
+          title: "Error",
           description:
             (axiosError.response?.data as ApiResponse)?.message ||
             "Failed to fetch message settings",
@@ -150,6 +154,47 @@ const page = () => {
           />
           <Button onClick={copyToClipboard}>Copy</Button>
         </div>
+      </div>
+      <div className="mb-4">
+        <Switch
+          {...register("acceptMessages")}
+          checked={acceptMessages}
+          onCheckedChange={handleSwitchChange}
+          disabled={isSwitchLoading}
+        />
+        <span className="ml-2">
+          Accept Messages: {acceptMessages ? "On" : "Off"}
+        </span>
+      </div>
+      <Separator />
+
+      <Button
+        className="mt-4"
+        variant="outline"
+        onClick={(e) => {
+          e.preventDefault();
+          fetchMessages(true);
+        }}
+      >
+        {isLoading ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <RefreshCcw className="h-4 w-4" />
+        )}
+      </Button>
+      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+        {messages.length > 0 ? (
+          messages.map((message, index) => (
+            <MessageCard
+              //@ts-ignore
+              key={message?._id}
+              message={message}
+              onMessageDelete={handleDeleteMessage}
+            />
+          ))
+        ) : (
+          <p>No messages to display.</p>
+        )}
       </div>
     </div>
   );

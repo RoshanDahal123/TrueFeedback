@@ -2,7 +2,81 @@ import UserModel, { User } from "@/model/User";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/options";
 import mongoose from "mongoose";
-export async function Delete(
+
+/**
+ * @swagger
+ * /api/delete-message/{messageId}:
+ *   delete:
+ *     tags: [Messages]
+ *     summary: Delete a specific message
+ *     description: Deletes a message from the authenticated user's messages
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: messageId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the message to delete
+ *         example: "64a1b5c6e4b0a1234567890a"
+ *     responses:
+ *       200:
+ *         description: Message deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *                   properties:
+ *                     success:
+ *                       example: true
+ *                     message:
+ *                       example: "Message deleted successfully"
+ *       401:
+ *         description: Not authenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *                   properties:
+ *                     success:
+ *                       example: false
+ *                     message:
+ *                       example: "Not authenticated"
+ *       404:
+ *         description: User or message not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *                   properties:
+ *                     success:
+ *                       example: false
+ *                     message:
+ *                       oneOf:
+ *                         - example: "User not found"
+ *                         - example: "Message not found or already deleted"
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *                   properties:
+ *                     success:
+ *                       example: false
+ *                     message:
+ *                       example: "Error deleting message"
+ */
+export async function DELETE(
   request: Request,
   {
     params,

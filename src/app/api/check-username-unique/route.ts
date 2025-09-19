@@ -7,6 +7,67 @@ const UsernameOuerySchema = z.object({
   username: usernameValidation,
 });
 
+/**
+ * @swagger
+ * /api/check-username-unique:
+ *   get:
+ *     tags: [Utility]
+ *     summary: Check username availability
+ *     description: Checks if a username is available and not already taken by a verified user
+ *     parameters:
+ *       - in: query
+ *         name: username
+ *         required: true
+ *         schema:
+ *           type: string
+ *           minLength: 2
+ *           maxLength: 20
+ *           pattern: '^[a-zA-Z0-9_]+$'
+ *         description: Username to check for availability
+ *         example: "john_doe"
+ *     responses:
+ *       200:
+ *         description: Username is available
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *                   properties:
+ *                     success:
+ *                       example: true
+ *                     message:
+ *                       example: "Username is unique"
+ *       400:
+ *         description: Username is taken or invalid
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *                   properties:
+ *                     success:
+ *                       example: false
+ *                     message:
+ *                       oneOf:
+ *                         - example: "Username is already taken"
+ *                         - example: "Invalid query parameters"
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *                   properties:
+ *                     success:
+ *                       example: false
+ *                     message:
+ *                       example: "Error checking username"
+ */
 export async function GET(request: Request) {
   await dbConnect();
 

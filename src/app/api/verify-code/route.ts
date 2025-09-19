@@ -1,6 +1,76 @@
 import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/model/User";
 
+/**
+ * @swagger
+ * /api/verify-code:
+ *   post:
+ *     tags: [Authentication]
+ *     summary: Verify user account with verification code
+ *     description: Verifies a user account using the verification code sent via email
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - username
+ *               - code
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 description: The username to verify
+ *                 example: "john_doe"
+ *               code:
+ *                 type: string
+ *                 description: 6-digit verification code
+ *                 example: "123456"
+ *     responses:
+ *       200:
+ *         description: Account verified successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *                   properties:
+ *                     success:
+ *                       example: true
+ *                     message:
+ *                       example: "Account verified successfully"
+ *       400:
+ *         description: Invalid or expired verification code
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *                   properties:
+ *                     success:
+ *                       example: false
+ *                     message:
+ *                       oneOf:
+ *                         - example: "Verification Code has expired please signup again to get a new code"
+ *                         - example: "Incorrect Verification Code"
+ *       500:
+ *         description: User not found or server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *                   properties:
+ *                     success:
+ *                       example: false
+ *                     message:
+ *                       oneOf:
+ *                         - example: "User Not found"
+ *                         - example: "Error verifying User"
+ */
 export async function POST(request: Request) {
   await dbConnect();
   try {

@@ -1,7 +1,6 @@
 import UserModel, { User } from "@/model/User";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/options";
-import mongoose from "mongoose";
 
 /**
  * @swagger
@@ -81,10 +80,10 @@ export async function DELETE(
   {
     params,
   }: {
-    params: { messageId: string };
+    params: Promise<{ messageId: string }>;
   }
 ) {
-  const messageId = params.messageId;
+  const { messageId } = await params;
   const session = await getServerSession(authOptions);
   const _user: User = session?.user as User;
   if (!session || !_user) {

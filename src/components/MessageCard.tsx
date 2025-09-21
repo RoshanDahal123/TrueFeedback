@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react';
+import React from 'react';
 import axios, { AxiosError } from 'axios';
 import dayjs from 'dayjs';
 import { X } from 'lucide-react';
@@ -37,7 +37,7 @@ export default function MessageCard({ message, onMessageDelete }: MessageCardPro
       toast({
         title: response.data.message,
       });
-      //@ts-ignore
+      // @ts-expect-error - Message ID type compatibility with delete handler
       onMessageDelete(message._id);
 
     } catch (error) {

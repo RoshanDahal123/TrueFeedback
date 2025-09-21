@@ -194,7 +194,7 @@ console.log(acceptMessages);
   }
 }
 
-export async function GET(request: Request) {
+export async function GET() {
   const session = await getServerSession(authOptions);
 
   const user: User = session?.user as User;
@@ -212,7 +212,7 @@ export async function GET(request: Request) {
   }
   const userId = user._id;
   const foundUser = await UserModel.findById(userId);
-  console.log(foundUser);
+
 
   try {
     if (!foundUser) {
@@ -226,8 +226,7 @@ export async function GET(request: Request) {
         }
       );
     }
-    //@ts-ignore
-    console.log(foundUser.isAcceptingMessage);
+   
     return Response.json(
       {
         success: true,

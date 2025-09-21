@@ -66,7 +66,7 @@ import { authOptions } from '../auth/[...nextauth]/options';
  *                     message:
  *                       example: "Internal server error"
  */
-export async function GET(request: Request) {
+export async function GET() {
   await dbConnect();
   const session = await getServerSession(authOptions);
   const _user: User = session?.user as User;

@@ -17,7 +17,7 @@ import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
-const page = () => {
+const Page = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSwitchLoading, setIsSwitchLoading] = useState<boolean>(false);
@@ -210,10 +210,10 @@ const page = () => {
       
       <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
         {messages.length > 0 ? (
-          messages.map((message, index) => (
+          messages.map((message, idx) => (
             <MessageCard
-               //@ts-ignore 
-              key={message._id}
+              // @ts-expect-error - Message ID type compatibility issue
+              key={message._id || `message-${idx}`}
               message={message}
               onMessageDelete={handleDeleteMessage}
             />
@@ -226,4 +226,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

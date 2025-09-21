@@ -13,7 +13,7 @@ import messages from "@/messages.json";
 import Autoplay from "embla-carousel-autoplay";
 import { useState } from "react";
 import { useEffect } from "react";
-function page() {
+export default function Page() {
   const [loading, setisLoading] = useState<boolean>(false);
 
   useEffect(() => {
@@ -69,4 +69,4 @@ function page() {
   );
 }
 
-export default page;
+

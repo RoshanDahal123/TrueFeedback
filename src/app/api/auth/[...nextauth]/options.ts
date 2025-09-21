@@ -3,6 +3,12 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/model/User";
+
+interface Credentials {
+  identifier: string;
+  password: string;
+}
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -12,9 +18,14 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials: any): Promise<any> {
+      // @ts-expect-error NextAuth credential types don't match our interface
+      async authorize(credentials: Credentials | undefined) {
         await dbConnect();
         try {
+          if (!credentials?.identifier || !credentials?.password) {
+            throw new Error("Missing credentials");
+          }
+          
           const user = await UserModel.findOne({
             $or: [
               {
@@ -40,8 +51,8 @@ export const authOptions: NextAuthOptions = {
           } else {
             throw new Error("Incorrect Password");
           }
-        } catch (error: any) {
-          throw new Error(error);
+        } catch (error: unknown) {
+          throw new Error(error instanceof Error ? error.message : "Authentication failed");
         }
       },
     }),

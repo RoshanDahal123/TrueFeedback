@@ -9,13 +9,19 @@ interface Credentials {
   password: string;
 }
 
+const getBaseUrl = () => {
+  if (process.env.NEXTAUTH_URL) return process.env.NEXTAUTH_URL;
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  return "http://localhost:3000";
+};
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       id: "credentials",
       name: "Credentials",
       credentials: {
-        email: { label: "Email", type: "text" },
+        identifier: { label: "Email/Username", type: "text" }, // ✅ Fixed: was 'email'
         password: { label: "Password", type: "password" },
       },
       // @ts-expect-error NextAuth credential types don't match our interface
@@ -36,16 +42,20 @@ export const authOptions: NextAuthOptions = {
               },
             ],
           });
+          
           if (!user) {
             throw new Error("No user found with this email");
           }
+          
           if (!user.isVerified) {
             throw new Error("Please verify your account before login");
           }
+          
           const isPasswordCorrect = await bcrypt.compare(
             credentials.password,
             user.password
           );
+          
           if (isPasswordCorrect) {
             return user;
           } else {
@@ -62,7 +72,7 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token._id = user._id?.toString();
         token.isVerified = user?.isVerified;
-        token.isAcceptingMessages = user?.isAcceptingMessage;
+        token.isAcceptingMessage = user?.isAcceptingMessage; // ✅ Fixed: consistent field name
         token.username = user.username;
       }
       return token;
@@ -71,17 +81,34 @@ export const authOptions: NextAuthOptions = {
       if (token) {
         session.user._id = token._id;
         session.user.isVerified = token.isVerified;
-        session.user.isAcceptingMessage = token.isAcceptingMessage;
+        session.user.isAcceptingMessage = token.isAcceptingMessage; // ✅ Fixed: consistent field name
         session.user.username = token.username;
       }
       return session;
     },
+    async redirect({ url, baseUrl }) {
+      const actualBaseUrl = getBaseUrl();
+      
+      console.log("Redirect callback:", { url, baseUrl, actualBaseUrl }); // Debug log
+      
+      // If url is relative, prepend with base URL
+      if (url.startsWith("/")) return `${actualBaseUrl}${url}`;
+      
+      // If url is absolute and matches base URL, allow it
+      if (url.startsWith(actualBaseUrl)) return url;
+      
+      // Default redirect to dashboard after successful login
+      return `${actualBaseUrl}/dashboard`;
+    },
   },
   pages: {
     signIn: "/sign-in",
+    error: "/sign-in", // ✅ Added: redirect errors back to sign-in
   },
   session: {
     strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // ✅ Added: 30 days
   },
   secret: process.env.NEXTAUTH_SECRET,
+  debug: process.env.NODE_ENV === "development", // ✅ Added: debug in development
 };
